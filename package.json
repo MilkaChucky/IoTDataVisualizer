@@ -1,0 +1,30 @@
+{
+  "name": "iotdatavisualizer",
+  "version": "1.0.0",
+  "description": "IoT adatok vizualizálására szolgáló webes alkalmazás dinamikusan bővíthető chartokkal.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MilkaChucky/IoTDataVisualizer.git"
+  },
+  "keywords": [
+    "IoT"
+  ],
+  "author": "Simon Péter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MilkaChucky/IoTDataVisualizer/issues"
+  },
+  "homepage": "https://github.com/MilkaChucky/IoTDataVisualizer#readme",
+  "dependencies": {
+    "chart.js": "^2.7.3",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "mqtt": "^2.18.8",
+    "socket.io": "^2.2.0"
+  }
+}

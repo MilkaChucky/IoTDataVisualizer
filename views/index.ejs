@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IoTDataVisualizer</title>
+</head>
+<body onload="addChart(currID++)">
+    <main id="dashboard" onclick="addChart(currID++)"></main>
+    <script src="/scripts/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        socket.on('teszt', (data) => {
+            console.log(data);
+        });
+        var currID = 1;
+        function addChart(id) {
+            document.getElementById('dashboard').insertAdjacentHTML('beforeend', `<section><canvas id="${id}" width="400" height="100"/></section>`);
+            let ctx = document.getElementById(`${id}`).getContext('2d');
+            let newChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ["January", "February", "March", "April", "May", "June", "July"],
+                    datasets: [{
+                        label: "My First dataset",
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        data: [0, 10, 5, 2, 20, 30, 45],
+                    }]
+                },
+                // Configuration options go here
+                options: {}
+            });
+        }
+    </script>
+</body>
+</html>
