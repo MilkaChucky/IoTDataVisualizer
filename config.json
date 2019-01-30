@@ -1,0 +1,66 @@
+{
+    "mqttTopics": [
+        "#"
+    ],
+    "globalChartOptions": {
+        "tooltips": {
+            "mode": "index",
+            "intersect": false
+        },
+        "spanGaps": false
+    },
+    "charts": [
+        {
+            "fieldsOfData": [
+                "temperature",
+                "weather.temperature"
+            ],
+            "chartOptions": {
+                "type": "line",
+                "maxNumberOfPoints": 10,
+                "options": {
+                    "title": {
+                        "display": true,
+                        "text": "Hőmérséklet"
+                    },
+                    "scales": {
+                        "yAxes": [
+                            {
+                                "ticks": {
+                                    "stepSize": 1
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "fieldsOfData": [
+                "humidity",
+                "weather.humidity"
+            ],
+            "chartOptions": {
+                "type": "line",
+                "maxNumberOfPoints": 10,
+                "options": {
+                    "title": {
+                        "display": true,
+                        "text": "Páratartalom"
+                    },
+                    "scales": {
+                        "yAxes": [
+                            {
+                                "ticks": {
+                                    "min": 0,
+                                    "max": 100,
+                                    "stepSize": 5
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}

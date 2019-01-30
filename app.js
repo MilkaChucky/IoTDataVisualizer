@@ -1,20 +1,55 @@
+const fs = require('fs');
 const express = require('express');
-
 const app = express();
 const httpServer = require('http').Server(app);
 const io = require('socket.io')(httpServer);
 const mqtt = require('mqtt');
 const router = express.Router();
+const config = JSON.parse(fs.readFileSync('config.json'));
 
-let mqttClient = mqtt.connect('mqtt://localhost');
+let charts = [];
+config.charts.forEach((chart, i) => {
+   charts.push({
+       id: i,
+       fieldsOfData: chart.fieldsOfData,
+       type: chart.chartOptions.type,
+       maxNumberOfPoints: chart.chartOptions.maxNumberOfPoints,
+       options: { ...config.globalChartOptions, ...chart.chartOptions.options },
+       devices: {}
+   }); 
+});
+
+let mqttClient = mqtt.connect([{
+    host: process.env.MQTT_BROKER_URL || 'localhost',
+    port: process.env.MQTT_BROKER_PORT || 1883
+}]);
+
 mqttClient.on('connect', (connack) => {
-    mqttClient.subscribe('#', (err, granted) => {
-        if (err) console.error(err);
+    //console.log(charts);
+    config.mqttTopics.forEach((topic) => {
+        //console.log(topic);
+        mqttClient.subscribe(topic, (err, granted) => {            
+            if (err) console.error(err);
+        });
     });
 });
 
 mqttClient.on('message', (topic, message) => {
-    io.emit(topic, message);
+    let json = JSON.parse(message.toString());
+    //console.log(json);
+    charts.forEach((chart) => {
+        for (const field of chart.fieldsOfData) {
+            if (json[field]) {
+                chart.devices[json.deviceId] = [json[field]];
+                io.emit('data', {
+                    id: chart.id,
+                    date: json.date,
+                    devices: chart.devices
+                });
+                break;
+            }
+        };
+    });
 });
 
 app.set('view engine', 'ejs')
@@ -39,6 +74,15 @@ app.use(express.static('public'));
 router.get('/', (req, res) => res.render('index'));
 
 app.get('/scripts/chart.js', (req, res) => res.sendFile(`${__dirname}/node_modules/chart.js/dist/Chart.bundle.min.js`));
+app.get('/chartoptions/:id', (req, res) => {
+    let id = parseInt(req.params.id);
+    let chart = charts.find((c) => c.id === id);
+    res.json({
+        type: chart.type,
+        maxNumberOfPoints: chart.maxNumberOfPoints,
+        options: chart.options
+    });
+});
 app.use('/', router);
 // app.use((req, res) => {
 //     res.redirect('/');
@@ -50,11 +94,7 @@ httpServer.listen(port, () => {
     console.log(`IoTDataVisualizer is running on port ${port}!`);
 });
 
-let shutdownListener = function() {
-    mqttClient.end();
-}
-
-process.on('SIGUSR1', shutdownListener);
-process.on('SIGUSR2', shutdownListener);
-process.on('SIGINT', shutdownListener);
-process.on('exit', shutdownListener);
+process.on('SIGUSR1', () => process.exit());
+process.on('SIGUSR2', () => process.exit());
+process.on('SIGINT', () => process.exit());
+process.on('exit', () => mqttClient.end());
