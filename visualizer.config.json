@@ -1,7 +1,4 @@
 {
-    "mqttTopics": [
-        "#"
-    ],
     "globalChartOptions": {
         "tooltips": {
             "mode": "index",

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IoTDataVisualizer</title>
+</head>
+<body>
+    <main id="dashboard"></main>
+    <script src="/scripts/chart.js"></script>
+    <script src="/scripts/chart.plugins.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let charts = {};
+
+        socket.on('data', (data) => {
+            //console.log(data);
+
+            const id = data.id;
+            let promises = [];
+
+            if (!charts[id]) {
+                charts[id] = {
+                    chartObject: {},
+                    devices: {},
+                    maxNumberOfPoints: false
+                };
+
+                promises.push(
+                    fetch(`/chartoptions/${id}`)
+                    .then(response => response.json())
+                    .then(json => {
+                        document.getElementById('dashboard').insertAdjacentHTML('beforeend', `<section><canvas id="${id}" width="400" height="150"/></section>`);
+                        let ctx = document.getElementById(`${id}`).getContext('2d');
+
+                        charts[id].chartObject = new Chart(ctx, {
+                            type: json.type,
+                            data: {
+                                labels: [],
+                                datasets: []
+                            },
+                            options: json.options
+                        });
+
+                        charts[id].maxNumberOfPoints = json.maxNumberOfPoints;
+                    })
+                );
+            }
+
+            Promise.all(promises)
+                .then(() => {
+                    charts[id].chartObject.data.labels.push(new Date(data.date).toLocaleString());
+
+                    Object.keys(data.devices).forEach(device => {
+                        if (!charts[id].devices.hasOwnProperty(device)) {
+                            charts[id].devices[device] = charts[id].chartObject.data.datasets.length;
+                            charts[id].chartObject.data.datasets.push({
+                                label: device,
+                                //backgroundColor: 'rgba(255, 99, 0, 0)',
+                                //borderColor: 'rgb(255, 99, 0)',
+                                data: new Array(charts[id].chartObject.data.labels.length - 1).fill(NaN),
+                            });
+                        }
+
+                        charts[id].chartObject.data.datasets[charts[id].devices[device]].data.push({
+                            t: new Date(data.date),
+                            y: data.devices[device][0]
+                        });
+                    });
+
+                    if (charts[id].chartObject.data.labels.length - 1 === charts[id].maxNumberOfPoints) {
+                        charts[id].chartObject.data.labels.shift();
+                        charts[id].chartObject.data.datasets.forEach(dataset => dataset.data.shift());
+                    }
+
+                    charts[id].chartObject.update();
+                });
+        });
+    </script>
+</body>
+</html>
