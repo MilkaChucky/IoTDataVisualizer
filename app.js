@@ -27,7 +27,7 @@ config.visuals.charts.forEach((chart, i) => {
         type: chart.chartOptions.type,
         maxNumberOfPoints: chart.chartOptions.maxNumberOfPoints,
         options: { ...config.visuals.globalChartOptions, ...chart.chartOptions.options },
-        devices: {}
+        measurementsOfDevices: {}
     });
 });
 
@@ -51,18 +51,20 @@ mqttClient.on('connect', (connack) => {
 });
 
 mqttClient.on('message', (topic, message) => {
-    let json = JSON.parse(message.toString());
+    const json = JSON.parse(message.toString());
 
     charts.forEach((chart) => {
         for (const field of chart.fieldsOfData) {
-            if (json[field]) {
-                let deviceId = json.deviceId || 'Default device';
-                chart.devices[deviceId] = [json[field]];
+            if (!isNaN(json[field])) {
+                const device = json.deviceId || 'Default device';
+                chart.measurementsOfDevices[device] = [json[field]];
+
                 io.emit('data', {
                     id: chart.id,
                     date: json.date || new Date(),
-                    devices: chart.devices
+                    measurementsOfDevices: chart.measurementsOfDevices
                 });
+
                 break;
             }
         };
@@ -78,6 +80,7 @@ app.use('/', realtimeRouter);
 app.use('/history', historyRouter);
 
 app.get('/scripts/chart.js', (req, res) => res.status(200).sendFile(`${__dirname}/node_modules/chart.js/dist/Chart.bundle.min.js`));
+app.get('/scripts/palette.js', (req, res) => res.status(200).sendFile(`${__dirname}/node_modules/google-palette/palette.js`));
 app.get('/chartoptions/:id', (req, res) => {
     let id = parseInt(req.params.id);
     let chart = charts.find((c) => c.id === id);

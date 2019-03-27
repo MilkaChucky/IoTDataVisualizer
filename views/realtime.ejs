@@ -9,6 +9,7 @@
     <main id="dashboard"></main>
     <script src="/scripts/chart.js"></script>
     <script src="/scripts/chart.plugins.js"></script>
+    <script src="/scripts/palette.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
@@ -24,7 +25,7 @@
             if (!charts[id]) {
                 charts[id] = {
                     chartObject: {},
-                    devices: {},
+                    indexOfDevices: {},
                     maxNumberOfPoints: false
                 };
 
@@ -53,20 +54,25 @@
                 .then(() => {
                     charts[id].chartObject.data.labels.push(new Date(data.date).toLocaleString('hu-HU'));
 
-                    Object.keys(data.devices).forEach(device => {
-                        if (!charts[id].devices.hasOwnProperty(device)) {
-                            charts[id].devices[device] = charts[id].chartObject.data.datasets.length;
+                    const devices = Object.keys(data.measurementsOfDevices);
+                    const colors = palette('mpn65', devices.length);
+                    
+                    devices.forEach((device, i) => {
+                        let index = charts[id].indexOfDevices[device];
+
+                        if (isNaN(index) /*!charts[id].devices.hasOwnProperty(device)*/) {
+                            index = charts[id].chartObject.data.datasets.length;
+                            charts[id].indexOfDevices[device] = index;
                             charts[id].chartObject.data.datasets.push({
                                 label: device,
-                                //backgroundColor: 'rgba(255, 99, 0, 0)',
-                                //borderColor: 'rgb(255, 99, 0)',
                                 data: new Array(charts[id].chartObject.data.labels.length - 1).fill(NaN)
                             });
                         }
-
-                        charts[id].chartObject.data.datasets[charts[id].devices[device]].data.push({
+                       
+                        charts[id].chartObject.data.datasets[index].borderColor = `#${colors[i]}`;
+                        charts[id].chartObject.data.datasets[index].data.push({
                             t: new Date(data.date),
-                            y: data.devices[device][0]
+                            y: data.measurementsOfDevices[device][0]
                         });
                     });
 

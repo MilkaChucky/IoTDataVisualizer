@@ -35,6 +35,7 @@
             let ctx = document.getElementById(`${chart.id}`).getContext('2d');
 
             chart.object = new Chart(ctx, chart.config);
+            chart.object.data.labels = chart.object.data.labels.map(date => new Date(date).toLocaleString('hu-HU'));
             chart.object.update();
         });
 

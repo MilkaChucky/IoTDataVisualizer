@@ -22,7 +22,7 @@ function createPredefinedChart(chart, messages) {
             if (message.hasOwnProperty(field)) {
                 let index = predefinedChart.config.data.datasets.findIndex(dataset => dataset.label === message.deviceId)
                 // console.log(index);
-                predefinedChart.config.data.labels.push(new Date(message.date).toLocaleString('hu-HU'));
+                predefinedChart.config.data.labels.push(new Date(message.date));
 
                 if (index === -1) {
                     index += predefinedChart.config.data.datasets.push({
