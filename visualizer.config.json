@@ -4,7 +4,15 @@
             "mode": "index",
             "intersect": false
         },
-        "spanGaps": false
+        "spanGaps": false,
+        "title": {
+            "fontSize": 20
+        },
+        "elements": {
+            "line": {
+                "backgroundColor": "transparent"
+            }
+        }
     },
     "charts": [
         {

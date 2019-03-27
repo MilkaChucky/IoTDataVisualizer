@@ -2,15 +2,46 @@
 <html>
 <head>
     <title>IoTDataVisualizer</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
 </head>
 <body>
+    <%- include('navbar', {page: '/history'}) %>
     <main>
-        
+        <section>
+            <form method="GET" action="/history">
+                <fieldset>
+                    <legend>Date of message</legend>
+                    <label for="fromDate">From:</label>
+                    <input type="datetime-local" name="fromDate" id="fromDate" <% if (!isNaN(Date.parse(fromDate))) { %> value="<%= fromDate %>" <% } %>>
+                    <label for="toDate">Until:</label>
+                    <input type="datetime-local" name="toDate" id="toDate" <% if (!isNaN(Date.parse(toDate))) { %> value="<%= toDate %>" <% } %>>
+                    <input type="submit" value="Filter">
+                </fieldset>
+            </form>
+        </section>
+        <section id="dashboard"></section>
     </main>
     <script src="/scripts/chart.js"></script>
     <script src="/scripts/chart.plugins.js"></script>
     <script>
+        const charts = <%- JSON.stringify(predefinedCharts instanceof Array ? predefinedCharts : []) %>;
+        const dashboard = document.getElementById('dashboard');
 
+        charts.forEach((chart, i) => {
+            let checkboxes = chart.config.data.datasets.map((dataset, j) => { 
+                return `<label><input type="checkbox" onclick="toggleDataset(this, ${i}, ${j})" checked>${dataset.label}</label>`
+            }).join('');
+            dashboard.insertAdjacentHTML('beforeend', `<div><canvas id="${chart.id}" width="400" height="150"/></div><div class="grid">${checkboxes}</div>`);
+            let ctx = document.getElementById(`${chart.id}`).getContext('2d');
+
+            chart.object = new Chart(ctx, chart.config);
+            chart.object.update();
+        });
+
+        function toggleDataset(cb, i, j) {
+            charts[i].object.data.datasets[j].hidden = !cb.checked;
+            charts[i].object.update();
+        }
     </script>
 </body>
 </html>

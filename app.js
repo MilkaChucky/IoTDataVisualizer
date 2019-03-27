@@ -9,7 +9,14 @@ const realtimeRouter = require('./routes/realtime');
 const historyRouter = require('./routes/history');
 
 const brokerURL = `mqtt://${config.mqtt.host}:${config.mqtt.port}`;
-const databaseURL = `mongodb://${config.mongo.host}:${config.mongo.port}`;
+
+Object.defineProperty(Array.prototype, 'flat', {
+    value: function(depth = 1) {
+      return this.reduce(function (flat, toFlatten) {
+        return flat.concat((Array.isArray(toFlatten) && (depth-1)) ? toFlatten.flat(depth-1) : toFlatten);
+      }, []);
+    }
+});
 
 let charts = [];
 
@@ -39,7 +46,6 @@ mqttClient.on('connect', (connack) => {
 
     mqttClient.subscribe(config.mqtt.topic, (err, granted) => {
         if (err) console.error(err);
-
         console.log(`Subscribed to ${config.mqtt.topic}`);
     });
 });
@@ -64,21 +70,8 @@ mqttClient.on('message', (topic, message) => {
 });
 
 app.set('view engine', 'ejs');
-
-/*
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.set('trust proxy', 1);
-app.use(session({
-    secret: "#Kd8saodJLKSm492382kKSmx&@E^21KDltsdx#$$231Aa",
-    resave: true,
-    saveUninitialized: true,
-    cookie: { 
-        secure: false, 
-        maxAge: 3000000 
-    }
-}));
-*/
+app.set('config', config)
+app.set('charts', charts);
 
 app.use(express.static('public'));
 app.use('/', realtimeRouter);

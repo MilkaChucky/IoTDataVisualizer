@@ -26,6 +26,7 @@
     "chart.js": "^2.7.3",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "google-palette": "^1.1.0",
     "mongodb": "^3.1.13",
     "mqtt": "^2.18.8",
     "socket.io": "^2.2.0"

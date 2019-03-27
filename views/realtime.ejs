@@ -2,14 +2,17 @@
 <html>
 <head>
     <title>IoTDataVisualizer</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/styles.css">
 </head>
 <body>
+    <%- include('navbar', {page: '/'}) %>
     <main id="dashboard"></main>
     <script src="/scripts/chart.js"></script>
     <script src="/scripts/chart.plugins.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        const dashboard = document.getElementById('dashboard');
         let charts = {};
 
         socket.on('data', (data) => {
@@ -29,7 +32,7 @@
                     fetch(`/chartoptions/${id}`)
                     .then(response => response.json())
                     .then(json => {
-                        document.getElementById('dashboard').insertAdjacentHTML('beforeend', `<section><canvas id="${id}" width="400" height="150"/></section>`);
+                        dashboard.insertAdjacentHTML('beforeend', `<section><canvas id="${id}" width="400" height="150"/></section>`);
                         let ctx = document.getElementById(`${id}`).getContext('2d');
 
                         charts[id].chartObject = new Chart(ctx, {
@@ -48,7 +51,7 @@
 
             Promise.all(promises)
                 .then(() => {
-                    charts[id].chartObject.data.labels.push(new Date(data.date).toLocaleString());
+                    charts[id].chartObject.data.labels.push(new Date(data.date).toLocaleString('hu-HU'));
 
                     Object.keys(data.devices).forEach(device => {
                         if (!charts[id].devices.hasOwnProperty(device)) {
@@ -57,7 +60,7 @@
                                 label: device,
                                 //backgroundColor: 'rgba(255, 99, 0, 0)',
                                 //borderColor: 'rgb(255, 99, 0)',
-                                data: new Array(charts[id].chartObject.data.labels.length - 1).fill(NaN),
+                                data: new Array(charts[id].chartObject.data.labels.length - 1).fill(NaN)
                             });
                         }
 

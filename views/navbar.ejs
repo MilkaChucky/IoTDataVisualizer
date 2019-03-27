@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<style>
+    ul {
+        list-style-type: none;
+        margin: 0 0 1em 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+    }
+
+    li {
+        float: left;
+    }
+
+    li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+    }
+
+    li a:hover:not(.active) {
+        background-color: #111;
+    }
+
+    .active {
+        background-color:deepskyblue;
+        color: #111
+    }
+</style>
+<ul>
+    <li><a <% if (page === '/') { %> class="active" <% } %> href="/">Realtime</a></li>
+    <li><a <% if (page === '/history') { %> class="active" <% } %> href="/history">History</a></li>
+</ul>
+
+</html>

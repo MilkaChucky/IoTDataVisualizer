@@ -1,0 +1,22 @@
+* {
+    font-size: 1.05em
+}
+
+.grid {
+    padding: 1em;
+    /* display: grid;
+    grid-template-columns: auto auto auto auto; */
+    display: flex;
+    /* flex-wrap: wrap; */
+    flex-direction: row;
+    justify-content: space-evenly
+}
+
+input[type='checkbox'] {
+    /* -webkit-appearance:none; */
+    width:0.8em;
+    height:0.8em;
+    /* background:white; */
+    border-radius:5px;
+    border:2px solid #555;
+}
