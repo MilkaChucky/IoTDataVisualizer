@@ -20,8 +20,8 @@ function createPredefinedChart(chart, messages) {
         // console.log(JSON.stringify(message));
         for (const field of chart.fieldsOfData) {
             if (message.hasOwnProperty(field)) {
-                let index = predefinedChart.config.data.datasets.findIndex(dataset => dataset.label === message.deviceId)
-                // console.log(index);
+                let index = predefinedChart.config.data.datasets.findIndex(dataset => dataset.label === message.deviceId);
+
                 predefinedChart.config.data.labels.push(new Date(message.date));
 
                 if (index === -1) {
@@ -33,10 +33,9 @@ function createPredefinedChart(chart, messages) {
 
                 const colors = palette('mpn65', index + 1);
                 predefinedChart.config.data.datasets.forEach((dataset, i) => {
-                    // console.log(`${i} === ${index}`);
                     dataset.borderColor = `#${colors[i]}`;
                     dataset.data.push({
-                        t: new Date(message.date),
+                        t: new Date(new Date(message.date).setMilliseconds(0)),
                         y: i === index ? message[field] : NaN
                     });
                 });
