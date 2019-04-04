@@ -10,13 +10,15 @@ const historyRouter = require('./routes/history');
 
 const brokerURL = `mqtt://${config.mqtt.host}:${config.mqtt.port}`;
 
-Object.defineProperty(Array.prototype, 'flat', {
-    value: function(depth = 1) {
-      return this.reduce(function (flat, toFlatten) {
-        return flat.concat((Array.isArray(toFlatten) && (depth-1)) ? toFlatten.flat(depth-1) : toFlatten);
-      }, []);
-    }
-});
+Array.prototype.flat = function (depth = 1) {
+    return this.reduce(function (flat, toFlatten) {
+        return flat.concat((Array.isArray(toFlatten) && (depth - 1)) ? toFlatten.flat(depth - 1) : toFlatten);
+    }, []);
+}
+
+Object.prototype.getNestedPropertyValue = function (property) {
+    return property.split('.').reduce((a, b) => a[b], this);
+}
 
 let charts = [];
 
@@ -55,9 +57,10 @@ mqttClient.on('message', (topic, message) => {
 
     charts.forEach((chart) => {
         for (const field of chart.fieldsOfData) {
-            if (!isNaN(json[field])) {
+            const value = json.getNestedPropertyValue(field);
+            if (!isNaN(value)) {
                 const device = json.deviceId || 'Default device';
-                chart.measurementsOfDevices[device] = [json[field]];
+                chart.measurementsOfDevices[device] = [value];
 
                 io.emit('data', {
                     id: chart.id,
@@ -84,7 +87,7 @@ app.get('/scripts/palette.js', (req, res) => res.status(200).sendFile(`${__dirna
 app.get('/chartoptions/:id', (req, res) => {
     let id = parseInt(req.params.id);
     let chart = charts.find((c) => c.id === id);
-    
+
     if (chart) {
         res.status(200).json({
             type: chart.type,
