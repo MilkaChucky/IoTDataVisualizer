@@ -24,11 +24,11 @@
   "homepage": "https://github.com/MilkaChucky/IoTDataVisualizer#readme",
   "dependencies": {
     "chart.js": "^2.9.4",
-    "ejs": "^3.1.10",
+    "ejs": "^6.0.1",
     "express": "^4.22.2",
     "google-palette": "^1.1.0",
     "mongodb": "^3.1.13",
-    "mqtt": "^2.18.8",
+    "mqtt": "^5.15.2",
     "socket.io": "^2.5.0"
   }
 }
